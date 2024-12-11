@@ -2,15 +2,26 @@ using GrpcService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(5055, listenOptions =>
+    {
+        listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2;
+    });
+    options.ListenAnyIP(5051, listenOptions =>
+    {
+        listenOptions.UseHttps();
+        listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2;
+    });
+});
+
+
+
 builder.Services.AddGrpc();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-app.MapGrpcService<GreeterService>();
-app.MapGet("/",
-    () =>
-        "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
+app.MapGrpcService<AppointmentServiceImpl>();
+app.MapGet("/", () => "gRPC Service is running");
 
 app.Run();

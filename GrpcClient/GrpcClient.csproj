@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AssemblyName>GrpcClientApp</AssemblyName>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="EasyNetQ" Version="7.8.0" />
+      <PackageReference Include="Google.Protobuf" Version="3.29.1" />
+      <PackageReference Include="Grpc.Net.Client" Version="2.67.0" />
+      <PackageReference Include="Grpc.Tools" Version="2.68.1">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Protobuf Include="..\Protos\confirmation_code.proto">
+        <Link>Protos\confirmation_code.proto</Link>
+      </Protobuf>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="DoctorAppointmentWebApi.Messages">
+        <HintPath>..\..\DoctorAppointmentWebApi.Messages\bin\Debug\net8.0\DoctorAppointmentWebApi.Messages.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+</Project>
