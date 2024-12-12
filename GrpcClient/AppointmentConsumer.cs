@@ -11,39 +11,36 @@ namespace GrpcClient
 
         public AppointmentConsumer()
         {
-            // Создание подключения через EasyNetQ
             _bus = RabbitHutch.CreateBus("amqp://guest:guest@localhost:5672");
         }
 
         public void StartListening()
         {
-            Console.WriteLine("Listening for appointment messages...");
+            Console.WriteLine("Слушаем очередь и ожидаем appointment...");
 
             _bus.PubSub.SubscribeAsync<AppointmentMessage>("appointment_subscription", async appointment =>
             {
                 try
                 {
-                    Console.WriteLine($"[x] Received Appointment: {appointment.AppointmentId}");
-
-                    // Вызов gRPC-сервиса для генерации кода
-                    Console.WriteLine("[*] Attempting to call gRPC service...");
+                    Console.WriteLine($"[x] Полученный Appointment: {appointment.AppointmentId}");
+                    
+                    Console.WriteLine("[*] Стучимся в gRPC Service...");
                     var confirmationCode = await GetConfirmationCodeFromGrpcService(appointment.AppointmentId, appointment.PatientId);
 
-                    Console.WriteLine($"[x] Generated Confirmation Code for Appointment {appointment.AppointmentId}: {confirmationCode}");
-
-                    // Отправка сгенерированного кода обратно в RabbitMQ
-                    Console.WriteLine("[*] Attempting to publish confirmation code...");
+                    Console.WriteLine($"[v] Сгенерирован уникальный код для appointment - {appointment.AppointmentId}: {confirmationCode}");
+                    
+                    Console.WriteLine("[*] Формируем сообщение и отправляем код в RabbitMQ...");
                     PublishConfirmationCode(appointment.AppointmentId, confirmationCode);
 
-                    Console.WriteLine("[x] Successfully processed appointment.");
+                    Console.WriteLine("[v] Сообщение успешно отправлено.");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[!] Error while processing appointment: {ex.Message}");
+                    Console.WriteLine($"[!] Ошибка при получении записи: {ex.Message}");
                 }
             });
 
-            Console.WriteLine("Press [enter] to exit.");
+            Console.WriteLine("Нажмите любую кнопку для завершения процесса");
             Console.ReadLine();
         }
 
@@ -60,8 +57,7 @@ namespace GrpcClient
                     }
                 });
                 var client = new AppointmentService.AppointmentServiceClient(channel);
-
-                // Запрос к gRPC-сервису
+                
                 var response = await client.GenerateConfirmationCodeAsync(new GenerateCodeRequest
                 {
                     AppointmentId = appointmentId.ToString(),
@@ -72,8 +68,8 @@ namespace GrpcClient
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[!] Error in GetConfirmationCodeFromGrpcService: {ex.Message}");
-                throw; // Проброс исключения
+                Console.WriteLine($"[!] Ошибка при выполнении метода <<GetConfirmationCodeFromGrpcService>>: {ex.Message}");
+                throw;
             }
         }
 
@@ -87,7 +83,8 @@ namespace GrpcClient
             };
 
             _bus.PubSub.Publish(message);
-            Console.WriteLine($"[x] Published Confirmation Code for Appointment {appointmentId}: {confirmationCode}");
+            Console.WriteLine($"[v] Сгенерированный уникальный код для записи - {appointmentId}: {confirmationCode}" +
+                              $" был передан в RabbitMQ для дальнейших действий");
         }
     }
 }

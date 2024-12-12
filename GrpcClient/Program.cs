@@ -4,7 +4,7 @@ namespace GrpcClient
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine("Starting Appointment Consumer...");
+            Console.WriteLine("Запуск GrpcClient...");
 
             var consumer = new AppointmentConsumer();
             consumer.StartListening();
