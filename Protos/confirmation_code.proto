@@ -4,18 +4,15 @@ option csharp_namespace = "GrpcService";
 
 package appointmentservice;
 
-// Сервис для работы с подтверждениями
 service AppointmentService {
   rpc GenerateConfirmationCode (GenerateCodeRequest) returns (GenerateCodeResponse);
 }
 
-// Запрос для генерации кода
 message GenerateCodeRequest {
   string appointmentId = 1;
   string patientId = 2;
 }
 
-// Ответ с уникальным кодом
 message GenerateCodeResponse {
   string confirmationCode = 1;
 }
